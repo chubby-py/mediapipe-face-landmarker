@@ -1,0 +1,29 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: #111;
+}
+
+main {
+  position: relative;
+  width: min(100vw, 960px);
+}
+
+video,
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform: scaleX(-1);
+}
+
+canvas {
+  position: absolute;
+  inset: 0;
+}
