@@ -110,7 +110,7 @@ async function playIntroVideo(): Promise<void> {
 
 let calibrationComplete = false;
 let calibrationStableFrames = 0;
-const CALIBRATION_REQUIRED_FRAMES = 18;
+const CALIBRATION_REQUIRED_FRAMES = 8;
 
 function setCalibrationState(title: string, status: string, phase: 'calibrating' | 'success' | 'move'): void {
   calibrationTitleElement.textContent = title;
@@ -153,7 +153,7 @@ function drawLandmarks(faceLandmarker: FaceLandmarker): void {
       setCalibrationState('臉部已校正', '已成功偵測到臉部，準備進入遊戲。', 'success');
     }
 
-    if (calibrationStableFrames > CALIBRATION_REQUIRED_FRAMES && !calibrationComplete) {
+    if (calibrationStableFrames >= CALIBRATION_REQUIRED_FRAMES && !calibrationComplete) {
       calibrationComplete = true;
       mainContentElement.classList.add('game-started');
       calibrationOverlayElement.style.opacity = '0';
