@@ -3,17 +3,27 @@ import {
   FaceLandmarker,
   FilesetResolver,
 } from '@mediapipe/tasks-vision';
-import './style.css';
 
 const video = document.querySelector<HTMLVideoElement>('#webcam');
 const canvas = document.querySelector<HTMLCanvasElement>('#overlay');
+const introVideo = document.querySelector<HTMLVideoElement>('#intro-video');
+const introContainer = document.querySelector<HTMLDivElement>('#intro-container');
+const mainContent = document.querySelector<HTMLDivElement>('#main-content');
+const skipBtn = document.querySelector<HTMLButtonElement>('#skip-btn');
 
 if (!video || !canvas) {
   throw new Error('The video or canvas element is missing.');
 }
 
+if (!introVideo || !introContainer || !mainContent) {
+  throw new Error('The intro video elements are missing.');
+}
+
 const videoElement: HTMLVideoElement = video;
 const overlay: HTMLCanvasElement = canvas;
+const introVideoElement: HTMLVideoElement = introVideo;
+const introContainerElement: HTMLDivElement = introContainer;
+const mainContentElement: HTMLDivElement = mainContent;
 const context = overlay.getContext('2d');
 
 if (!context) {
@@ -48,6 +58,36 @@ async function startWebcam(): Promise<void> {
   overlay.height = videoElement.videoHeight;
 }
 
+async function playIntroVideo(): Promise<void> {
+  // 设置欢迎视频源（放在 public/intro.mp4）
+  introVideoElement.src = '/intro.mp4';
+  
+  return new Promise<void>((resolve) => {
+    const handleEnded = () => {
+      // 视频播放完成
+      introContainerElement.classList.add('hidden');
+      mainContentElement.classList.remove('hidden');
+      introVideoElement.removeEventListener('ended', handleEnded);
+      skipBtn?.removeEventListener('click', handleSkip);
+      resolve();
+    };
+    
+    const handleSkip = () => {
+      // 跳过按钮被点击
+      introVideoElement.pause();
+      introContainerElement.classList.add('hidden');
+      mainContentElement.classList.remove('hidden');
+      introVideoElement.removeEventListener('ended', handleEnded);
+      skipBtn?.removeEventListener('click', handleSkip);
+      resolve();
+    };
+    
+    introVideoElement.addEventListener('ended', handleEnded);
+    skipBtn?.addEventListener('click', handleSkip);
+    introVideoElement.play();
+  });
+}
+
 function drawLandmarks(faceLandmarker: FaceLandmarker): void {
   canvasContext.clearRect(0, 0, overlay.width, overlay.height);
 
@@ -62,6 +102,10 @@ function drawLandmarks(faceLandmarker: FaceLandmarker): void {
 }
 
 async function main(): Promise<void> {
+  // 先播放欢迎视频
+  await playIntroVideo();
+  
+  // 欢迎视频播完后，启动 MediaPipe
   const [faceLandmarker] = await Promise.all([
     createFaceLandmarker(),
     startWebcam(),

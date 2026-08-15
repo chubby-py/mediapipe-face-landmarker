@@ -4,9 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MediaPipe Face Landmarker</title>
+    <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <main>
+    <!-- 欢迎视频 -->
+    <div id="intro-container" class="intro-container">
+      <button id="skip-btn" class="skip-btn">跳过</button>
+      <video id="intro-video" class="intro-video"></video>
+    </div>
+    
+    <!-- 主要内容 -->
+    <main id="main-content" class="hidden">
       <video id="webcam" autoplay playsinline></video>
       <canvas id="overlay"></canvas>
     </main>
