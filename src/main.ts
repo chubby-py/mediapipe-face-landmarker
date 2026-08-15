@@ -16,6 +16,9 @@ const calibrationStatus = document.querySelector<HTMLParagraphElement>('#calibra
 const stateCalibrating = document.querySelector<HTMLDivElement>('#state-calibrating');
 const stateSuccess = document.querySelector<HTMLDivElement>('#state-success');
 const stateMoveFace = document.querySelector<HTMLDivElement>('#state-move-face');
+const debugFaceCount = document.querySelector<HTMLSpanElement>('#debug-face-count');
+const debugStableFrames = document.querySelector<HTMLSpanElement>('#debug-stable-frames');
+const debugPhase = document.querySelector<HTMLSpanElement>('#debug-phase');
 
 if (!video || !canvas) {
   throw new Error('The video or canvas element is missing.');
@@ -33,6 +36,10 @@ if (!stateCalibrating || !stateSuccess || !stateMoveFace) {
   throw new Error('The calibration state boxes are missing.');
 }
 
+if (!debugFaceCount || !debugStableFrames || !debugPhase) {
+  throw new Error('The debug HUD elements are missing.');
+}
+
 const videoElement: HTMLVideoElement = video;
 const overlay: HTMLCanvasElement = canvas;
 const introVideoElement: HTMLVideoElement = introVideo;
@@ -44,6 +51,9 @@ const calibrationStatusElement: HTMLParagraphElement = calibrationStatus;
 const stateCalibratingElement: HTMLDivElement = stateCalibrating;
 const stateSuccessElement: HTMLDivElement = stateSuccess;
 const stateMoveFaceElement: HTMLDivElement = stateMoveFace;
+const debugFaceCountElement: HTMLSpanElement = debugFaceCount;
+const debugStableFramesElement: HTMLSpanElement = debugStableFrames;
+const debugPhaseElement: HTMLSpanElement = debugPhase;
 const context = overlay.getContext('2d');
 
 if (!context) {
@@ -110,11 +120,12 @@ async function playIntroVideo(): Promise<void> {
 
 let calibrationComplete = false;
 let calibrationStableFrames = 0;
-const CALIBRATION_REQUIRED_FRAMES = 8;
+const CALIBRATION_REQUIRED_FRAMES = 5;
 
 function setCalibrationState(title: string, status: string, phase: 'calibrating' | 'success' | 'move'): void {
   calibrationTitleElement.textContent = title;
   calibrationStatusElement.textContent = status;
+  debugPhaseElement.textContent = phase;
 
   const boxes = [
     stateCalibratingElement,
@@ -138,6 +149,8 @@ function drawLandmarks(faceLandmarker: FaceLandmarker): void {
   const drawingUtils = new DrawingUtils(canvasContext);
 
   const faceCount = result.faceLandmarks.length;
+  debugFaceCountElement.textContent = String(faceCount);
+  debugStableFramesElement.textContent = String(calibrationStableFrames);
 
   if (faceCount > 0) {
     calibrationStableFrames += 1;
@@ -164,7 +177,7 @@ function drawLandmarks(faceLandmarker: FaceLandmarker): void {
       drawingUtils.drawLandmarks(landmarks, { color: '#00ff88', radius: 1.5 });
     }
   } else {
-    calibrationStableFrames = 0;
+    calibrationStableFrames = Math.max(0, calibrationStableFrames - 2);
     calibrationComplete = false;
     calibrationOverlayElement.style.opacity = '1';
     calibrationOverlayElement.style.display = 'grid';
