@@ -147,6 +147,14 @@ function setCalibrationState(title: string, status: string, phase: 'calibrating'
 function drawLandmarks(faceLandmarker: FaceLandmarker): void {
   canvasContext.clearRect(0, 0, overlay.width, overlay.height);
 
+  if (calibrationComplete) {
+    debugFaceCountElement.textContent = 'locked';
+    debugStableFramesElement.textContent = String(CALIBRATION_REQUIRED_FRAMES);
+    debugMapStateElement.textContent = 'visible';
+    requestAnimationFrame(() => drawLandmarks(faceLandmarker));
+    return;
+  }
+
   const result = faceLandmarker.detectForVideo(videoElement, performance.now());
   const drawingUtils = new DrawingUtils(canvasContext);
 
