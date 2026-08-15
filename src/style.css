@@ -25,6 +25,10 @@ main {
   display: block;
 }
 
+.game-scene.game-started .game-map {
+  filter: saturate(1.08) brightness(1.05);
+}
+
 .game-map {
   position: absolute;
   inset: 0;

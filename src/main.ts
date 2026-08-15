@@ -155,6 +155,7 @@ function drawLandmarks(faceLandmarker: FaceLandmarker): void {
 
     if (calibrationStableFrames > CALIBRATION_REQUIRED_FRAMES && !calibrationComplete) {
       calibrationComplete = true;
+      mainContentElement.classList.add('game-started');
       calibrationOverlayElement.style.opacity = '0';
       calibrationOverlayElement.style.pointerEvents = 'none';
       setTimeout(() => {
