@@ -37,6 +37,12 @@ main {
   background-position: center;
   background-repeat: no-repeat;
   z-index: 0;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+}
+
+.game-scene.map-visible .game-map {
+  opacity: 1;
 }
 
 video {

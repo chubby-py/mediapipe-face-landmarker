@@ -139,11 +139,6 @@ function drawLandmarks(faceLandmarker: FaceLandmarker): void {
 
   const faceCount = result.faceLandmarks.length;
 
-  if (calibrationComplete) {
-    requestAnimationFrame(() => drawLandmarks(faceLandmarker));
-    return;
-  }
-
   if (faceCount > 0) {
     calibrationStableFrames += 1;
 
@@ -158,9 +153,11 @@ function drawLandmarks(faceLandmarker: FaceLandmarker): void {
       mainContentElement.classList.add('game-started');
       calibrationOverlayElement.style.opacity = '0';
       calibrationOverlayElement.style.pointerEvents = 'none';
+
       setTimeout(() => {
         calibrationOverlayElement.style.display = 'none';
-      }, 500);
+        mainContentElement.classList.add('map-visible');
+      }, 800);
     }
 
     for (const landmarks of result.faceLandmarks) {
