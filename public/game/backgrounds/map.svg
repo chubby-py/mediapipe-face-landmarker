@@ -1,0 +1,13 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#0d1f2a"/>
+  <path d="M0 200H1600V760H0V200Z" fill="#285548"/>
+  <path d="M150 250C320 120 470 150 610 220C760 300 820 370 980 380C1130 390 1290 330 1450 250V720C1310 780 1160 810 980 780C760 740 630 640 450 650C290 660 160 710 150 720V250Z" fill="#2f6d59"/>
+  <path d="M250 330C370 300 470 305 545 360" stroke="#d9f7e0" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M610 300C710 255 845 260 945 330" stroke="#d9f7e0" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M980 330C1070 370 1160 450 1210 530" stroke="#d9f7e0" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M300 600C390 550 500 530 600 560" stroke="#d9f7e0" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M700 585C805 610 900 660 1000 700" stroke="#d9f7e0" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <circle cx="330" cy="620" r="50" fill="#b6e7ff" fill-opacity="0.22"/>
+  <circle cx="1240" cy="280" r="42" fill="#ffd56d" fill-opacity="0.18"/>
+  <circle cx="1200" cy="660" r="62" fill="#98ffb7" fill-opacity="0.15"/>
+</svg>

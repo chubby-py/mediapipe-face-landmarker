@@ -10,6 +10,12 @@ const introVideo = document.querySelector<HTMLVideoElement>('#intro-video');
 const introContainer = document.querySelector<HTMLDivElement>('#intro-container');
 const mainContent = document.querySelector<HTMLDivElement>('#main-content');
 const skipBtn = document.querySelector<HTMLButtonElement>('#skip-btn');
+const calibrationOverlay = document.querySelector<HTMLDivElement>('#calibration-overlay');
+const calibrationTitle = document.querySelector<HTMLHeadingElement>('#calibration-title');
+const calibrationStatus = document.querySelector<HTMLParagraphElement>('#calibration-status');
+const stateCalibrating = document.querySelector<HTMLDivElement>('#state-calibrating');
+const stateSuccess = document.querySelector<HTMLDivElement>('#state-success');
+const stateMoveFace = document.querySelector<HTMLDivElement>('#state-move-face');
 
 if (!video || !canvas) {
   throw new Error('The video or canvas element is missing.');
@@ -19,11 +25,25 @@ if (!introVideo || !introContainer || !mainContent) {
   throw new Error('The intro video elements are missing.');
 }
 
+if (!calibrationOverlay || !calibrationTitle || !calibrationStatus) {
+  throw new Error('The calibration UI elements are missing.');
+}
+
+if (!stateCalibrating || !stateSuccess || !stateMoveFace) {
+  throw new Error('The calibration state boxes are missing.');
+}
+
 const videoElement: HTMLVideoElement = video;
 const overlay: HTMLCanvasElement = canvas;
 const introVideoElement: HTMLVideoElement = introVideo;
 const introContainerElement: HTMLDivElement = introContainer;
 const mainContentElement: HTMLDivElement = mainContent;
+const calibrationOverlayElement: HTMLDivElement = calibrationOverlay;
+const calibrationTitleElement: HTMLHeadingElement = calibrationTitle;
+const calibrationStatusElement: HTMLParagraphElement = calibrationStatus;
+const stateCalibratingElement: HTMLDivElement = stateCalibrating;
+const stateSuccessElement: HTMLDivElement = stateSuccess;
+const stateMoveFaceElement: HTMLDivElement = stateMoveFace;
 const context = overlay.getContext('2d');
 
 if (!context) {
@@ -88,14 +108,70 @@ async function playIntroVideo(): Promise<void> {
   });
 }
 
+let calibrationComplete = false;
+let calibrationStableFrames = 0;
+const CALIBRATION_REQUIRED_FRAMES = 18;
+
+function setCalibrationState(title: string, status: string, phase: 'calibrating' | 'success' | 'move'): void {
+  calibrationTitleElement.textContent = title;
+  calibrationStatusElement.textContent = status;
+
+  const boxes = [
+    stateCalibratingElement,
+    stateSuccessElement,
+    stateMoveFaceElement,
+  ];
+
+  for (const box of boxes) {
+    box.classList.toggle('active', box === {
+      calibrating: stateCalibratingElement,
+      success: stateSuccessElement,
+      move: stateMoveFaceElement,
+    }[phase]);
+  }
+}
+
 function drawLandmarks(faceLandmarker: FaceLandmarker): void {
   canvasContext.clearRect(0, 0, overlay.width, overlay.height);
 
   const result = faceLandmarker.detectForVideo(videoElement, performance.now());
   const drawingUtils = new DrawingUtils(canvasContext);
 
-  for (const landmarks of result.faceLandmarks) {
-    drawingUtils.drawLandmarks(landmarks, { color: '#00ff88', radius: 1.5 });
+  const faceCount = result.faceLandmarks.length;
+
+  if (calibrationComplete) {
+    requestAnimationFrame(() => drawLandmarks(faceLandmarker));
+    return;
+  }
+
+  if (faceCount > 0) {
+    calibrationStableFrames += 1;
+
+    if (calibrationStableFrames <= CALIBRATION_REQUIRED_FRAMES) {
+      setCalibrationState('校正中', '請將臉部置於畫面中央，保持靜止幾秒。', 'calibrating');
+    } else {
+      setCalibrationState('臉部已校正', '已成功偵測到臉部，準備進入遊戲。', 'success');
+    }
+
+    if (calibrationStableFrames > CALIBRATION_REQUIRED_FRAMES && !calibrationComplete) {
+      calibrationComplete = true;
+      calibrationOverlayElement.style.opacity = '0';
+      calibrationOverlayElement.style.pointerEvents = 'none';
+      setTimeout(() => {
+        calibrationOverlayElement.style.display = 'none';
+      }, 500);
+    }
+
+    for (const landmarks of result.faceLandmarks) {
+      drawingUtils.drawLandmarks(landmarks, { color: '#00ff88', radius: 1.5 });
+    }
+  } else {
+    calibrationStableFrames = 0;
+    calibrationComplete = false;
+    calibrationOverlayElement.style.opacity = '1';
+    calibrationOverlayElement.style.display = 'grid';
+    calibrationOverlayElement.style.pointerEvents = 'auto';
+    setCalibrationState('請移動臉部', '請將臉部移到圓框中央，並保持正面朝向鏡頭。', 'move');
   }
 
   requestAnimationFrame(() => drawLandmarks(faceLandmarker));

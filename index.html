@@ -14,9 +14,32 @@
     </div>
     
     <!-- 主要内容 -->
-    <main id="main-content" class="hidden">
+    <main id="main-content" class="hidden game-scene">
+      <div class="game-map" aria-hidden="true"></div>
       <video id="webcam" autoplay playsinline></video>
       <canvas id="overlay"></canvas>
+
+      <div class="focus-ring" aria-hidden="true"></div>
+
+      <div id="calibration-overlay" class="calibration-overlay" aria-live="polite">
+        <div class="calibration-panel">
+          <p class="calibration-kicker">System Check</p>
+          <h2 id="calibration-title">正對鏡頭</h2>
+          <p id="calibration-status">請將臉部置於畫面中央，保持靜止幾秒。</p>
+
+          <div class="state-grid" aria-label="Face calibration states">
+            <div id="state-calibrating" class="state-box active">
+              <span>校正中</span>
+            </div>
+            <div id="state-success" class="state-box">
+              <span>校正成功</span>
+            </div>
+            <div id="state-move-face" class="state-box">
+              <span>請移動臉部</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>
