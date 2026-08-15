@@ -19,6 +19,7 @@ const stateMoveFace = document.querySelector<HTMLDivElement>('#state-move-face')
 const debugFaceCount = document.querySelector<HTMLSpanElement>('#debug-face-count');
 const debugStableFrames = document.querySelector<HTMLSpanElement>('#debug-stable-frames');
 const debugPhase = document.querySelector<HTMLSpanElement>('#debug-phase');
+const debugMapState = document.querySelector<HTMLSpanElement>('#debug-map-state');
 
 if (!video || !canvas) {
   throw new Error('The video or canvas element is missing.');
@@ -36,7 +37,7 @@ if (!stateCalibrating || !stateSuccess || !stateMoveFace) {
   throw new Error('The calibration state boxes are missing.');
 }
 
-if (!debugFaceCount || !debugStableFrames || !debugPhase) {
+if (!debugFaceCount || !debugStableFrames || !debugPhase || !debugMapState) {
   throw new Error('The debug HUD elements are missing.');
 }
 
@@ -54,6 +55,7 @@ const stateMoveFaceElement: HTMLDivElement = stateMoveFace;
 const debugFaceCountElement: HTMLSpanElement = debugFaceCount;
 const debugStableFramesElement: HTMLSpanElement = debugStableFrames;
 const debugPhaseElement: HTMLSpanElement = debugPhase;
+const debugMapStateElement: HTMLSpanElement = debugMapState;
 const context = overlay.getContext('2d');
 
 if (!context) {
@@ -167,6 +169,7 @@ function drawLandmarks(faceLandmarker: FaceLandmarker): void {
       setTimeout(() => {
         calibrationOverlayElement.style.display = 'none';
         mainContentElement.classList.add('map-visible');
+        debugMapStateElement.textContent = 'visible';
       }, 800);
     } else if (!calibrationComplete) {
       setCalibrationState('校正中', '請將臉部置於畫面中央，保持靜止幾秒。', 'calibrating');
@@ -183,6 +186,8 @@ function drawLandmarks(faceLandmarker: FaceLandmarker): void {
     calibrationOverlayElement.style.opacity = '1';
     calibrationOverlayElement.style.display = 'grid';
     calibrationOverlayElement.style.pointerEvents = 'auto';
+    mainContentElement.classList.remove('map-visible');
+    debugMapStateElement.textContent = 'hidden';
     debugStableFramesElement.textContent = '0';
     setCalibrationState('請移動臉部', '請將臉部移到圓框中央，並保持正面朝向鏡頭。', 'move');
   }
