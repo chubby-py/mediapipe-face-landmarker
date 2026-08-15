@@ -150,38 +150,40 @@ function drawLandmarks(faceLandmarker: FaceLandmarker): void {
 
   const faceCount = result.faceLandmarks.length;
   debugFaceCountElement.textContent = String(faceCount);
-  debugStableFramesElement.textContent = String(calibrationStableFrames);
 
   if (faceCount > 0) {
-    calibrationStableFrames += 1;
-
-    if (calibrationStableFrames <= CALIBRATION_REQUIRED_FRAMES) {
-      setCalibrationState('校正中', '請將臉部置於畫面中央，保持靜止幾秒。', 'calibrating');
-    } else {
-      setCalibrationState('臉部已校正', '已成功偵測到臉部，準備進入遊戲。', 'success');
+    if (!calibrationComplete) {
+      calibrationStableFrames += 1;
     }
 
     if (calibrationStableFrames >= CALIBRATION_REQUIRED_FRAMES && !calibrationComplete) {
       calibrationComplete = true;
+      calibrationStableFrames = CALIBRATION_REQUIRED_FRAMES;
       mainContentElement.classList.add('game-started');
       calibrationOverlayElement.style.opacity = '0';
       calibrationOverlayElement.style.pointerEvents = 'none';
+      setCalibrationState('臉部已校正', '已成功偵測到臉部，準備進入遊戲。', 'success');
 
       setTimeout(() => {
         calibrationOverlayElement.style.display = 'none';
         mainContentElement.classList.add('map-visible');
       }, 800);
+    } else if (!calibrationComplete) {
+      setCalibrationState('校正中', '請將臉部置於畫面中央，保持靜止幾秒。', 'calibrating');
     }
+
+    debugStableFramesElement.textContent = String(calibrationStableFrames);
 
     for (const landmarks of result.faceLandmarks) {
       drawingUtils.drawLandmarks(landmarks, { color: '#00ff88', radius: 1.5 });
     }
   } else {
-    calibrationStableFrames = Math.max(0, calibrationStableFrames - 2);
+    calibrationStableFrames = 0;
     calibrationComplete = false;
     calibrationOverlayElement.style.opacity = '1';
     calibrationOverlayElement.style.display = 'grid';
     calibrationOverlayElement.style.pointerEvents = 'auto';
+    debugStableFramesElement.textContent = '0';
     setCalibrationState('請移動臉部', '請將臉部移到圓框中央，並保持正面朝向鏡頭。', 'move');
   }
 
